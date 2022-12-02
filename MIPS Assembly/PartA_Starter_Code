@@ -1,0 +1,78 @@
+###### A2 Stage 2 Part A Starter Code ########
+
+.data # this .data section is where you can simulate stored data in random access memory 
+
+	array: .word 1, 0, 0, 3, 2 # you can write any label which ends in a colon such as 'array:' <- PUT YOUR STUDENT NUMBERS HERE
+	length: .word 5 # <--- THIS IS THE NUMBER OF ELEMENTS IN THE ARRAY
+	
+	
+.text #this section is where you write your main script
+
+	main:
+		la $t0, array # la is load address base address  <---- loads the base ADDRESS of the array into $t0
+		li $t1, 0     # i=0 
+		lw $t2, length #store length 5 into $t2
+		li $t3, 0 #sum = 0
+ 		
+############### COMPLETE YOUR CODE BELOW THIS LINE #######
+
+		li $s1, 0 #s1 = 0
+		li $s4, 9#s4 = 9 (as we are looking through 1 digit numbers this is the maximum possible value)
+		
+		j 	for#jump straight to the for loop
+			
+	biggerValue:
+		add $s1, $s0, $zero #add the value s0 to s1
+		j	for #jump to top of for loop
+	
+	smallerValue:
+		add $s4, $s0, $zero #add the value s0 to s4
+		j	for #jump to top of for loop
+	
+	average:
+		mtc1 $t2, $f2 #set t2 to coproc f2
+		cvt.s.w $f2, $f2 #convert from int in f2 to float in f2
+		mtc1 $t3, $f3 #set t3 to coproc f3
+		cvt.s.w $f3, $f3 #convert from int in f3 to float in f3
+		div.s $f4, $f3, $f2 #divides f3 by f2 and store in f4
+		
+		j	prints #jumps to prints which will print in order big value, small value, average
+		
+	for:
+		beq $t1, $t2, average #go to average when t1 = t2
+		sll $s0, $t1, 2 #s0 is t1 * 4
+		add $s0, $s0, $t0 #make s0 the next location in t0
+		lw $s0, 0($s0) #s0 becomes the location in the array
+		slt $s2, $s1, $s0#checks if s0 is greater than s1 and stores in s2
+		slt $s3, $s0, $s4#checks if s4 if greater than s0 and stores in s3
+		add $t3, $t3, $s0 # add that locations value to the sum t3
+		addi $t1, $t1, 1 #add 1 to t1
+		bne $s2, $zero, biggerValue#goto biggervalue function if s0 is greater than s1
+		bne $s3, $zero, smallerValue#goto smallervalue function if s4 is greater than s0
+		j	for#jump to top of for loop
+	
+	prints:
+		li $v0, 1 #prepare to print immediate
+		move $a0, $s4 #moves s4 to a0
+		syscall #print to console
+		li $v0, 11  # syscall number for printing character
+		li $a0, 32 #ascii code for space to give gap between numbers
+		syscall#print to console
+		li $v0, 1 #prepare to print immediate
+		move $a0, $s1 #moves s1 to a0
+		syscall#print to console
+		li $v0, 11  # syscall number for printing character
+		li $a0, 32 #ascii code for space to give gap between numbers
+		syscall#print to console
+		li $v0, 2 #prepare to print float
+		mov.s $f12, $f4 #move $f4 to system call coproc
+		syscall #print float to console
+		j	end #jumps to the end of the program
+				
+	end:
+################COMPLETE YOUR CODE ABOVE THIS LINE #######
+		
+		
+		#terminate program 
+		li $v0 10     #### THIS IS A GOOD WAY TO END THE PROGRAM BY PUTTING THE VALUE 10 INTO $v0 AND USING SYSCALL
+		syscall
